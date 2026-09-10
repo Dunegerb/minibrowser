@@ -29,13 +29,23 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Show SDK information
+      - name: Verify selected SDK
         shell: pwsh
-        run: dotnet --info
+        run: |
+          dotnet --version
+          dotnet --info
 
-      - name: Restore NuGet packages
+          $major = (dotnet --version).Split('.')[0]
+          if ($major -ne '8') {
+            throw "Expected .NET SDK 8.x, but dotnet selected $(dotnet --version)."
+          }
+
+      - name: Restore Windows x64 runtime and NuGet packages
         shell: pwsh
-        run: dotnet restore .\MiniBrowser.sln -p:RuntimeIdentifier=win-x64
+        run: |
+          dotnet restore .\src\MiniBrowser.App\MiniBrowser.App.csproj `
+            --runtime win-x64 `
+            -p:SelfContained=true
 
       - name: Publish self-contained Windows x64 build
         shell: pwsh
@@ -45,7 +55,7 @@ jobs:
 
           dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
             -c Release `
-            -r win-x64 `
+            --runtime win-x64 `
             --self-contained true `
             --no-restore `
             -o $output `
