@@ -1,0 +1,53 @@
+<Window x:Class="MiniBrowser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MiniBrowser"
+        Width="1280"
+        Height="820"
+        MinWidth="800"
+        MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        Closing="Window_Closing">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Padding="8" BorderThickness="0,0,0,1" BorderBrush="#22000000">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="BackButton" Grid.Column="0" Width="36" Margin="0,0,5,0" Content="←" Click="Back_Click" ToolTip="Voltar"/>
+                <Button x:Name="ForwardButton" Grid.Column="1" Width="36" Margin="0,0,5,0" Content="→" Click="Forward_Click" ToolTip="Avançar"/>
+                <Button Grid.Column="2" Width="36" Margin="0,0,8,0" Content="↻" Click="Reload_Click" ToolTip="Recarregar"/>
+
+                <TextBox x:Name="Omnibox"
+                         Grid.Column="3"
+                         Height="32"
+                         VerticalContentAlignment="Center"
+                         Padding="8,0"
+                         KeyDown="Omnibox_KeyDown"
+                         ToolTip="URL ou pesquisa"/>
+
+                <Button Grid.Column="4" Margin="8,0,0,0" Padding="10,0" Content="+" Click="NewTab_Click" ToolTip="Nova aba"/>
+                <Button Grid.Column="5" Margin="5,0,0,0" Padding="10,0" Content="Audit" Click="Audit_Click" ToolTip="Auditoria de rede local"/>
+                <Button Grid.Column="6" Margin="5,0,0,0" Padding="10,0" Content="RECAÍ" Click="Relapse_Click" ToolTip="Registrar recaída na Machine"/>
+                <Button Grid.Column="7" Margin="5,0,0,0" Padding="10,0" Content="×" Click="CloseTab_Click" ToolTip="Fechar aba"/>
+            </Grid>
+        </Border>
+
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem><TextBlock x:Name="StatusText" Text="Machine: OFFLINE/STUB"/></StatusBarItem>
+            <Separator/>
+            <StatusBarItem><TextBlock x:Name="SessionText"/></StatusBarItem>
+        </StatusBar>
+
+        <TabControl x:Name="Tabs" SelectionChanged="Tabs_SelectionChanged"/>
+    </DockPanel>
+</Window>
