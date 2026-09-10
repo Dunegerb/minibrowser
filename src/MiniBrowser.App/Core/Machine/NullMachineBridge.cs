@@ -4,6 +4,8 @@ public sealed class NullMachineBridge : IMachineBridge
 {
     private readonly MachineFlightRecorder _recorder;
 
+    public bool ResourceEventsEnabled => false;
+
     public NullMachineBridge(MachineFlightRecorder recorder)
     {
         _recorder = recorder;

@@ -2,6 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace MiniBrowser.Core.Machine;
 
+public static class MachineProtocol
+{
+    public const int CurrentVersion = 2;
+}
+
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum MachineDecisionType
 {
@@ -30,6 +35,7 @@ public sealed record MachineEventEnvelope(
     Guid SessionId,
     Guid WindowId,
     int TabId,
+    string CapsuleId,
     string FrameId,
     DateTimeOffset TimestampUtc,
     long MonotonicUs,

@@ -10,9 +10,13 @@
     <Platforms>x64</Platforms>
     <RootNamespace>MiniBrowser</RootNamespace>
     <AssemblyName>MiniBrowser</AssemblyName>
+    <Version>0.6.0</Version>
+    <AssemblyVersion>0.6.0.0</AssemblyVersion>
+    <FileVersion>0.6.0.0</FileVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CefSharp.Wpf.NETCore" Version="151.3.240" />
+    <PackageReference Include="CefSharp.Wpf.HwndHost" Version="151.3.240" />
   </ItemGroup>
 </Project>

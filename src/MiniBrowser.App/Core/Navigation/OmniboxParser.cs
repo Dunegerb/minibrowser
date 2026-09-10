@@ -10,14 +10,15 @@ public sealed record NavigationTarget(NavigationKind Kind, string TargetUrl, str
 
 public static class OmniboxParser
 {
-    private const string SearchEndpoint = "https://www.google.com/search?q=";
+    // Google was hard-coded in V0.4. Default is now DuckDuckGo; no request is sent until Enter.
+    private const string SearchEndpoint = "https://duckduckgo.com/?q=";
 
     public static NavigationTarget Parse(string raw)
     {
         var value = raw.Trim();
 
         if (Uri.TryCreate(value, UriKind.Absolute, out var absolute) &&
-            (absolute.Scheme is "http" or "https" or "about"))
+            (absolute.Scheme is "http" or "https" or "about" or "chrome"))
         {
             return new NavigationTarget(NavigationKind.Url, absolute.ToString());
         }

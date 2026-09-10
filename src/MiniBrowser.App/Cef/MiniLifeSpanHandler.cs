@@ -6,10 +6,12 @@ namespace MiniBrowser.Cef;
 public sealed class MiniLifeSpanHandler : LifeSpanHandler
 {
     private readonly Action<string> _openTab;
+    private readonly Func<bool> _canOpenPopup;
 
-    public MiniLifeSpanHandler(Action<string> openTab)
+    public MiniLifeSpanHandler(Action<string> openTab, Func<bool>? canOpenPopup = null)
     {
         _openTab = openTab;
+        _canOpenPopup = canOpenPopup ?? (() => true);
     }
 
     protected override bool OnBeforePopup(
@@ -28,12 +30,13 @@ public sealed class MiniLifeSpanHandler : LifeSpanHandler
     {
         newBrowser = null!;
 
-        if (!string.IsNullOrWhiteSpace(targetUrl))
+        if (_canOpenPopup() && !string.IsNullOrWhiteSpace(targetUrl))
         {
             _openTab(targetUrl);
         }
 
-        // Cancel native popup: navigation is re-routed to a MiniBrowser tab.
+        // Native popup is always cancelled. If capability is allowed, it is re-routed to a
+        // trusted MiniBrowser tab in the same capsule; otherwise the popup simply dies here.
         return true;
     }
 }

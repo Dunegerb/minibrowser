@@ -1,10 +1,9 @@
-name: Build MiniBrowser Windows x64
+name: Build MiniBrowser v0.6 Windows x64
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -16,7 +15,7 @@ env:
 
 jobs:
   build-windows-x64:
-    name: Windows x64 portable build
+    name: Windows x64 V0.6
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -33,64 +32,88 @@ jobs:
         shell: pwsh
         run: |
           dotnet --version
-          dotnet --info
-
           $major = (dotnet --version).Split('.')[0]
-          if ($major -ne '8') {
-            throw "Expected .NET SDK 8.x, but dotnet selected $(dotnet --version)."
-          }
+          if ($major -ne '8') { throw "Expected .NET SDK 8.x." }
 
-      - name: Restore Windows x64 runtime and NuGet packages
+      - name: Restore win-x64
         shell: pwsh
         run: |
-          dotnet restore .\src\MiniBrowser.App\MiniBrowser.App.csproj `
-            --runtime win-x64 `
-            -p:SelfContained=true
+          dotnet restore .\src\MiniBrowser.App\MiniBrowser.App.csproj -r win-x64
 
-      - name: Publish self-contained Windows x64 build
+      - name: Compile smoke test
         shell: pwsh
         run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-win-x64"
-          New-Item -ItemType Directory -Force -Path $output | Out-Null
+          dotnet build .\src\MiniBrowser.App\MiniBrowser.App.csproj `
+            -c Release -r win-x64 --no-restore -p:Platform=x64
 
+      - name: Publish portable self-contained build
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6-portable-x64"
           dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
-            -c Release `
-            --runtime win-x64 `
-            --self-contained true `
-            --no-restore `
-            -o $output `
-            -p:Platform=x64 `
-            -p:PublishSingleFile=false `
-            -p:DebugType=None `
-            -p:DebugSymbols=false
+            -c Release -r win-x64 --self-contained true `
+            -o $output -p:Platform=x64 -p:PublishSingleFile=false `
+            -p:DebugType=None -p:DebugSymbols=false -p:PublishReadyToRun=false
 
-      - name: Validate packaged browser
+      - name: Publish thin build
         shell: pwsh
         run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-win-x64"
-          $exe = Join-Path $output "MiniBrowser.exe"
-          $cef = Join-Path $output "libcef.dll"
+          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6-thin-x64"
+          dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
+            -c Release -r win-x64 --self-contained false `
+            -o $output -p:Platform=x64 -p:PublishSingleFile=false `
+            -p:DebugType=None -p:DebugSymbols=false -p:PublishReadyToRun=false
 
-          if (-not (Test-Path $exe)) {
-            throw "MiniBrowser.exe was not produced."
+      - name: Prune debug files and unused locales
+        shell: pwsh
+        run: |
+          Get-ChildItem "$env:GITHUB_WORKSPACE\artifacts" -Directory | ForEach-Object {
+            $root = $_.FullName
+            Get-ChildItem $root -Recurse -File -Include *.pdb,*.xml | Remove-Item -Force -ErrorAction SilentlyContinue
+
+            $locales = Join-Path $root "locales"
+            if (Test-Path $locales) {
+              Get-ChildItem $locales -File | Where-Object {
+                $_.Name -notin @('pt-BR.pak','en-US.pak')
+              } | Remove-Item -Force -ErrorAction SilentlyContinue
+            }
           }
 
-          if (-not (Test-Path $cef)) {
-            throw "libcef.dll was not produced; CefSharp runtime is incomplete."
+      - name: Validate and report package sizes
+        shell: pwsh
+        run: |
+          Get-ChildItem "$env:GITHUB_WORKSPACE\artifacts" -Directory | ForEach-Object {
+            $root = $_.FullName
+            $exe = Join-Path $root "MiniBrowser.exe"
+            $cef = Join-Path $root "libcef.dll"
+            if (-not (Test-Path $exe)) { throw "MiniBrowser.exe missing in $root" }
+            if (-not (Test-Path $cef)) { throw "libcef.dll missing in $root" }
+
+            $bytes = (Get-ChildItem $root -Recurse -File | Measure-Object Length -Sum).Sum
+            Write-Host "=== $($_.Name): $([math]::Round($bytes / 1MB, 2)) MB ==="
+            Get-ChildItem $root -Recurse -File |
+              Sort-Object Length -Descending |
+              Select-Object -First 15 Name,@{N='MB';E={[math]::Round($_.Length/1MB,2)}} |
+              Format-Table -AutoSize
+
+            $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  MiniBrowser.exe" | Set-Content -Encoding ascii (Join-Path $root "SHA256SUMS.txt")
           }
 
-          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  MiniBrowser.exe" | Set-Content -Encoding ascii (Join-Path $output "SHA256SUMS.txt")
-
-          Write-Host "MiniBrowser.exe: $((Get-Item $exe).Length) bytes"
-          Write-Host "SHA-256: $hash"
-          Write-Host "Package size: $([math]::Round(((Get-ChildItem $output -Recurse -File | Measure-Object Length -Sum).Sum / 1MB), 2)) MB"
-
-      - name: Upload ready-to-run browser
+      - name: Upload portable browser
         uses: actions/upload-artifact@v7
         with:
-          name: MiniBrowser-win-x64
-          path: artifacts/MiniBrowser-win-x64/
+          name: MiniBrowser-v0.6-portable-x64
+          path: artifacts/MiniBrowser-v0.6-portable-x64/
           if-no-files-found: error
           retention-days: 7
-          compression-level: 0
+          compression-level: 9
+
+      - name: Upload thin browser
+        uses: actions/upload-artifact@v7
+        with:
+          name: MiniBrowser-v0.6-thin-x64
+          path: artifacts/MiniBrowser-v0.6-thin-x64/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 9

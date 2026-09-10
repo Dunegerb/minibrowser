@@ -1,21 +1,36 @@
-# Engineering roadmap
+# Engineering roadmap after the V0.6 architecture pivot
 
-## V0.1 — Browser foundation (this archive)
+## V0.6 — Zero Browser foundation (this archive)
 
-CEF/WPF shell, tabs, omnibox, request observation, protocol boundary, local audit and flight recorder.
+- identity capsules;
+- Anonymous RAM-only RequestContext;
+- Personal isolated persistent RequestContext;
+- CapabilityBroker;
+- NetworkPolicyBroker request choke point;
+- capsule-aware audit/history/MachineProtocol v2;
+- Trusted UI capsule selector.
 
-## V0.2 — Visual quarantine
+## V0.7 — Permission broker enforcement
 
-Response-byte capture, shared-memory descriptors, async Machine decisions, placeholders, decision cache, image/CSS/srcset/data/blob coverage and First Paint Shield.
+Wire camera, microphone, geolocation, notifications, clipboard and downloads to CapabilityBroker with explicit trusted UI prompts and per-capsule grants.
 
-## V0.3 — Dynamic-page sensors
+## V0.8 — Visual quarantine
 
-Mutation sensor, visibility/intersection, dwell time, semantic interactions, causal IDs, form submission events and service-worker/websocket observations.
+First Paint Shield, response-byte capture, shared memory, image hash/perceptual-hash decision cache, CSS/srcset/data/blob/SVG coverage and async MiniMachine decisions.
 
-## V0.4 — Media + permissions
+## V0.9 — Dynamic behavior graph
 
-Video poster gate, scene-aware frame sampling, audio event plumbing, download gate and explicit camera/microphone/geolocation/notification permission UX.
+DOM mutation sensor, visibility/dwell time, semantic click/scroll/focus events, causal IDs, form submission events and replay improvements.
 
-## V0.5 — Audit hardening
+## V0.10 — External Network Broker prototype
 
-External packet-capture validation, binary/network allow-list tests, replay tooling, performance counters, crash-local-only verification and signed manual updates.
+Move destination policy and transport toward a separate process. CEF must no longer be treated as the final network authority. Preserve the `NetworkPolicyBroker` contract while replacing its transport implementation.
+
+## Later security milestones
+
+- renderer/browser out-of-process hardening and disposable execution environments;
+- identity vault and cryptographic capsule destruction;
+- fingerprint uniformity profiles;
+- anonymous network overlay / DNS privacy experimentation;
+- reproducible builds, multi-party signing and transparency;
+- external packet-capture verification and red-team/fuzzing.

@@ -13,8 +13,8 @@ public sealed class AuditWindow : Window
     {
         _audit = audit;
         Title = "MiniBrowser — Network Audit (local)";
-        Width = 1100;
-        Height = 620;
+        Width = 1240;
+        Height = 650;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
         var root = new DockPanel();
@@ -33,13 +33,15 @@ public sealed class AuditWindow : Window
             CanUserDeleteRows = false
         };
         _grid.Columns.Add(new DataGridTextColumn { Header = "UTC", Binding = new Binding(nameof(NetworkAuditEntry.TimestampUtc)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Tab", Binding = new Binding(nameof(NetworkAuditEntry.TabId)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Frame", Binding = new Binding(nameof(NetworkAuditEntry.FrameId)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Tipo", Binding = new Binding(nameof(NetworkAuditEntry.ResourceType)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Método", Binding = new Binding(nameof(NetworkAuditEntry.Method)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Domínio", Binding = new Binding(nameof(NetworkAuditEntry.Domain)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "URL SHA-256", Binding = new Binding(nameof(NetworkAuditEntry.UrlSha256)) });
-        _grid.Columns.Add(new DataGridTextColumn { Header = "Initiator", Binding = new Binding(nameof(NetworkAuditEntry.Initiator)) });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Tab", Binding = new Binding(nameof(NetworkAuditEntry.TabId)), Width = 55 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Capsule", Binding = new Binding(nameof(NetworkAuditEntry.CapsuleId)), Width = 130 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Policy", Binding = new Binding(nameof(NetworkAuditEntry.PolicyAction)), Width = 70 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Motivo", Binding = new Binding(nameof(NetworkAuditEntry.PolicyReason)), Width = 190 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Tipo", Binding = new Binding(nameof(NetworkAuditEntry.ResourceType)), Width = 100 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Método", Binding = new Binding(nameof(NetworkAuditEntry.Method)), Width = 70 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Domínio", Binding = new Binding(nameof(NetworkAuditEntry.Domain)), Width = 180 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "URL SHA-256", Binding = new Binding(nameof(NetworkAuditEntry.UrlSha256)), Width = 260 });
+        _grid.Columns.Add(new DataGridTextColumn { Header = "Initiator", Binding = new Binding(nameof(NetworkAuditEntry.Initiator)), Width = 220 });
         root.Children.Add(_grid);
 
         Content = root;

@@ -16,6 +16,8 @@ public sealed class NamedPipeMachineBridge : IMachineBridge
     private readonly MachineFlightRecorder _recorder;
     private readonly TimeSpan _connectTimeout;
 
+    public bool ResourceEventsEnabled => true;
+
     public NamedPipeMachineBridge(MachineFlightRecorder recorder, TimeSpan? connectTimeout = null)
     {
         _recorder = recorder;

@@ -1,58 +1,47 @@
-# Architecture
+# Architecture — V0.6
 
 ```text
-INTERNET
-   |
-   v
-CEF request pipeline
-   |
-   +--> MiniRequestHandler / MiniResourceRequestHandler
-   |       |--> NetworkAuditService (local JSONL)
-   |       `--> IMachineBridge
-   |               |--> NullMachineBridge (V0.1)
-   |               `--> NamedPipeMachineBridge (scaffold)
-   |
-   v
-CEF / Chromium renderer
-   |
-   v
-MiniBrowser UI
+                         TRUSTED UI
+                   tabs / omnibox / capsule
+                              |
+                              v
+                 +--------------------------+
+                 |      Browser Core        |
+                 |                          |
+                 |  CapsuleManager          |
+                 |  CapabilityBroker        |
+                 |  NetworkPolicyBroker     |
+                 |  MachineBridge           |
+                 +------------+-------------+
+                              |
+                 policy / isolated context
+                              |
+                              v
+                 +--------------------------+
+                 | CEF / Chromium           |
+                 | untrusted web renderer   |
+                 +------------+-------------+
+                              |
+                              v
+                           INTERNET
 ```
 
-The invariant is intentional:
+## Current trust boundary
 
-- Browser code reports **what happened**, where and when.
-- Machine code decides **what it means** and what action to take.
-- Website JavaScript never receives a direct reference to MachineBridge.
+- Web content is not trusted.
+- Website JavaScript never receives direct access to `MachineBridge`, capsule management or Browser Core services.
+- Tabs in different capsules receive different CEF `RequestContext` instances.
+- Anonymous capsule storage is in-memory; Personal capsule website state is stored in an isolated path.
+- `NetworkPolicyBroker` is called before resource loads and can block filesystem/download/unknown-scheme access.
+- Network Audit records capsule + policy outcome locally.
 
-## Protocol boundary
+## Important limitation
 
-`MachineEventEnvelope` is versioned independently from the engine. The initial events are:
+CEF still owns sockets and DNS in V0.6. Therefore the current `NetworkPolicyBroker` is an enforcement choke point, not yet the final physically separated Network Broker.
 
-- `network.resource.request`
-- `search.before_submit`
-- `relapse.confirmed`
+## Browser / Machine invariant
 
-The initial decision vocabulary is:
+Browser Core reports **what happened**, where, when and under which capsule/policy.
+MiniMachine decides **what it means** and what action to take.
 
-- `Allow`
-- `Block`
-- `Blur`
-- `Replace`
-- `Defer`
-- `ScanMore`
-
-## Next milestone: resource/visual gate
-
-The next implementation should remain inside the CEF request/render integration layer:
-
-1. detect visual resource candidates before display;
-2. quarantine unknown visuals;
-3. collect metadata and bytes without pushing MB-sized blobs through JSON;
-4. put bytes in shared memory and send a descriptor through MachineProtocol;
-5. ask Machine asynchronously;
-6. release, block, blur or replace according to the decision;
-7. cache by cryptographic + perceptual hash;
-8. add DOM mutation coverage and a first-paint shield for visual paths not represented by simple image requests.
-
-Do not implement Machine model logic in the browser project.
+The Machine protocol remains independent of the renderer implementation.

@@ -6,6 +6,7 @@ public sealed record NetworkAuditEntry(
     Guid SessionId,
     Guid WindowId,
     int TabId,
+    string CapsuleId,
     string FrameId,
     ulong RequestId,
     string Method,
@@ -14,4 +15,6 @@ public sealed record NetworkAuditEntry(
     string ResourceType,
     string Initiator,
     bool IsNavigation,
-    bool IsDownload);
+    bool IsDownload,
+    string PolicyAction,
+    string PolicyReason);
