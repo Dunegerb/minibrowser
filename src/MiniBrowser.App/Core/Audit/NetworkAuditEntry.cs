@@ -6,7 +6,7 @@ public sealed record NetworkAuditEntry(
     Guid SessionId,
     Guid WindowId,
     int TabId,
-    long FrameId,
+    string FrameId,
     ulong RequestId,
     string Method,
     string Domain,

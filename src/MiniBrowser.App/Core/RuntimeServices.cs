@@ -1,3 +1,4 @@
+using System.IO;
 using MiniBrowser.Core.Audit;
 using MiniBrowser.Core.Machine;
 

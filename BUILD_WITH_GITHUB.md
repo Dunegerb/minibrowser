@@ -47,6 +47,6 @@ O workflow usa apenas actions oficiais do GitHub para checkout, instalação do 
 
 A build não envia dados do MiniBrowser para serviços de analytics do projeto. O próprio GitHub Actions, naturalmente, executa a compilação na infraestrutura do GitHub e mantém os logs da execução conforme as políticas/configurações da conta/repositório.
 
-## V0.3 runtime restore fix
+## V0.4 runtime restore fix
 
 The workflow restores the `win-x64` runtime explicitly with `SelfContained=true` before publishing with `--no-restore`. A root `global.json` pins SDK selection to .NET 8 (rolling within .NET 8 feature bands), preventing GitHub-hosted runners from silently selecting a newer installed SDK such as .NET 10.

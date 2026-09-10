@@ -2,6 +2,7 @@ using CefSharp;
 using CefSharp.Wpf;
 using MiniBrowser.Cef;
 using MiniBrowser.Core;
+using MiniBrowser.Core.Audit;
 using MiniBrowser.Core.Machine;
 using MiniBrowser.Core.Navigation;
 using MiniBrowser.Models;
@@ -48,13 +49,14 @@ public partial class MainWindow : Window
         {
             if (CurrentTab == tab && !Omnibox.IsKeyboardFocusWithin)
             {
-                Omnibox.Text = args.Address ?? string.Empty;
+                Omnibox.Text = args.NewValue as string ?? string.Empty;
             }
         });
 
         browser.TitleChanged += (_, args) => Dispatcher.BeginInvoke(() =>
         {
-            var title = string.IsNullOrWhiteSpace(args.Title) ? "Nova aba" : args.Title;
+            var changedTitle = args.NewValue as string;
+            var title = string.IsNullOrWhiteSpace(changedTitle) ? "Nova aba" : changedTitle;
             item.Header = title.Length > 28 ? title[..28] + "…" : title;
         });
 

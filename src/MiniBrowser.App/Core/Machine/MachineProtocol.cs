@@ -30,7 +30,7 @@ public sealed record MachineEventEnvelope(
     Guid SessionId,
     Guid WindowId,
     int TabId,
-    long FrameId,
+    string FrameId,
     DateTimeOffset TimestampUtc,
     long MonotonicUs,
     string CausalId,

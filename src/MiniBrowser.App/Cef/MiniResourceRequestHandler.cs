@@ -50,7 +50,7 @@ public sealed class MiniResourceRequestHandler : ResourceRequestHandler
             var uri = Uri.TryCreate(request.Url, UriKind.Absolute, out var parsed) ? parsed : null;
             var domain = uri?.Host ?? string.Empty;
             var urlHash = NetworkAuditService.HashUrl(request.Url ?? string.Empty);
-            var frameId = frame?.Identifier ?? 0;
+            var frameId = frame?.Identifier ?? string.Empty;
             var resourceType = request.ResourceType.ToString();
 
             _audit.Publish(new NetworkAuditEntry(

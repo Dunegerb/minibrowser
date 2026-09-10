@@ -1,5 +1,6 @@
 using CefSharp;
 using CefSharp.Wpf;
+using CefRuntime = CefSharp.Cef;
 using MiniBrowser.Core;
 using System.IO;
 using System.Windows;
@@ -40,13 +41,13 @@ public partial class App : Application
         cefSettings.CefCommandLineArgs["no-first-run"] = "1";
         cefSettings.CefCommandLineArgs["disable-breakpad"] = "1";
 
-        if (Cef.IsInitialized == null)
+        if (CefRuntime.IsInitialized == null)
         {
-            var initialized = Cef.Initialize(cefSettings, performDependencyCheck: true, browserProcessHandler: null);
+            var initialized = CefRuntime.Initialize(cefSettings, performDependencyCheck: true, browserProcessHandler: null);
             if (!initialized)
             {
                 MessageBox.Show(
-                    $"Falha ao inicializar CEF ({Cef.GetExitCode()}). Consulte o log local em {cefSettings.LogFile}.",
+                    $"Falha ao inicializar CEF ({CefRuntime.GetExitCode()}). Consulte o log local em {cefSettings.LogFile}.",
                     "MiniBrowser",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

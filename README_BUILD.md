@@ -1,4 +1,4 @@
-# MiniBrowser V0.1 — build and run
+# MiniBrowser V0.4 — build and run
 
 This repository is the from-zero foundation for the MiniBrowser/MiniMachine architecture.
 
@@ -46,7 +46,7 @@ Website traffic still goes to the websites and third parties they contact. “No
 - `Ctrl+W` close tab
 - `F12` DevTools
 
-## What V0.1 implements
+## What V0.4 implements
 
 - WPF shell + CefSharp/CEF Chromium engine
 - x64, separate MiniBrowser profile
@@ -68,7 +68,7 @@ Website traffic still goes to the websites and third parties they contact. “No
 
 ## Deliberately not claimed as complete yet
 
-V0.1 is the foundation, not the final protected browser. The following are architecture slots/TODOs, **not completed security guarantees**:
+V0.4 is the foundation, not the final protected browser. The following are architecture slots/TODOs, **not completed security guarantees**:
 
 - pre-paint Visual Quarantine / First Paint Shield
 - image response-byte capture into shared memory
