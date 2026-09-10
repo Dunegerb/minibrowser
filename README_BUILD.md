@@ -1,13 +1,13 @@
-# MiniBrowser V0.6 — Zero Browser foundation
+# MiniBrowser V0.6.1 — Zero Browser foundation
 
-V0.6 introduces identity capsules, per-capsule CEF RequestContexts, a capability broker, a network policy broker and MachineProtocol v2 while retaining the optimized HwndHost renderer from V0.5.
+V0.6.1 introduces identity capsules, per-capsule CEF RequestContexts, a capability broker, a network policy broker and MachineProtocol v2 while retaining the optimized HwndHost renderer from V0.5.
 
 ## Recommended: build with GitHub Actions
 
 Push the repository to GitHub. The workflow at `.github/workflows/build-windows.yml` produces two Windows x64 artifacts:
 
-- `MiniBrowser-v0.6-portable-x64` — self-contained .NET runtime;
-- `MiniBrowser-v0.6-thin-x64` — smaller package, requires .NET 8 Desktop Runtime.
+- `MiniBrowser-v0.6.1-portable-x64` — self-contained .NET runtime;
+- `MiniBrowser-v0.6.1-thin-x64` — smaller package, requires .NET 8 Desktop Runtime.
 
 No Visual Studio or .NET SDK is required on the machine that merely runs the portable artifact.
 
@@ -54,7 +54,7 @@ Tabs never share RequestContexts across different capsules.
   logs\cef.log              local CEF log
 ```
 
-## Security boundary in V0.6
+## Security boundary in V0.6.1
 
 `NetworkPolicyBroker` executes before resource loads and can block requests by capability/scheme. It is **not yet** an external socket broker: CEF still owns network I/O in this milestone.
 
@@ -87,4 +87,4 @@ The device/clipboard entries are policy defaults but their CEF permission-handle
 
 ## Still intentionally incomplete
 
-V0.6 does not claim full Zero Browser isolation, microVMs, anonymous overlay networking, anti-fingerprinting uniformity, Visual Quarantine, encrypted vaults or an out-of-process Network Broker. See `docs/ZERO_BROWSER_ARCHITECTURE_V06.md`.
+V0.6.1 does not claim full Zero Browser isolation, microVMs, anonymous overlay networking, anti-fingerprinting uniformity, Visual Quarantine, encrypted vaults or an out-of-process Network Broker. See `docs/ZERO_BROWSER_ARCHITECTURE_V06.md`.

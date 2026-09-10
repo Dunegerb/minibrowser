@@ -1,4 +1,4 @@
-name: Build MiniBrowser v0.6 Windows x64
+name: Build MiniBrowser v0.6.1 Windows x64
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ env:
 
 jobs:
   build-windows-x64:
-    name: Windows x64 V0.6
+    name: Windows x64 V0.6.1
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -49,7 +49,7 @@ jobs:
       - name: Publish portable self-contained build
         shell: pwsh
         run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6-portable-x64"
+          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6.1-portable-x64"
           dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
             -c Release -r win-x64 --self-contained true `
             -o $output -p:Platform=x64 -p:PublishSingleFile=false `
@@ -58,7 +58,7 @@ jobs:
       - name: Publish thin build
         shell: pwsh
         run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6-thin-x64"
+          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6.1-thin-x64"
           dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
             -c Release -r win-x64 --self-contained false `
             -o $output -p:Platform=x64 -p:PublishSingleFile=false `
@@ -103,8 +103,8 @@ jobs:
       - name: Upload portable browser
         uses: actions/upload-artifact@v7
         with:
-          name: MiniBrowser-v0.6-portable-x64
-          path: artifacts/MiniBrowser-v0.6-portable-x64/
+          name: MiniBrowser-v0.6.1-portable-x64
+          path: artifacts/MiniBrowser-v0.6.1-portable-x64/
           if-no-files-found: error
           retention-days: 7
           compression-level: 9
@@ -112,8 +112,8 @@ jobs:
       - name: Upload thin browser
         uses: actions/upload-artifact@v7
         with:
-          name: MiniBrowser-v0.6-thin-x64
-          path: artifacts/MiniBrowser-v0.6-thin-x64/
+          name: MiniBrowser-v0.6.1-thin-x64
+          path: artifacts/MiniBrowser-v0.6.1-thin-x64/
           if-no-files-found: error
           retention-days: 7
           compression-level: 9

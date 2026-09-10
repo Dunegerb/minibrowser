@@ -72,21 +72,22 @@ public partial class MainWindow : Window
         _titles[tabId] = "Nova aba";
         Tabs.Items.Add(item);
 
-        browser.AddressChanged += (_, args) => Dispatcher.BeginInvoke(() =>
-        {
-            if (CurrentTab == tab && !Omnibox.IsKeyboardFocusWithin)
+        // CefSharp.Wpf.HwndHost exposes display-state changes through IDisplayHandler.
+        browser.DisplayHandler = new MiniDisplayHandler(
+            addressChanged: address => Dispatcher.BeginInvoke(() =>
             {
-                Omnibox.Text = args.Address ?? string.Empty;
-            }
-        });
-
-        browser.TitleChanged += (_, args) => Dispatcher.BeginInvoke(() =>
-        {
-            var title = string.IsNullOrWhiteSpace(args.Title) ? "Nova aba" : args.Title;
-            _titles[tabId] = title;
-            var shortTitle = title.Length > 22 ? title[..22] + "…" : title;
-            item.Header = $"{CapsulePrefix(capsule)} {shortTitle}";
-        });
+                if (CurrentTab == tab && !Omnibox.IsKeyboardFocusWithin)
+                {
+                    Omnibox.Text = address;
+                }
+            }),
+            titleChanged: rawTitle => Dispatcher.BeginInvoke(() =>
+            {
+                var title = string.IsNullOrWhiteSpace(rawTitle) ? "Nova aba" : rawTitle;
+                _titles[tabId] = title;
+                var shortTitle = title.Length > 22 ? title[..22] + "…" : title;
+                item.Header = $"{CapsulePrefix(capsule)} {shortTitle}";
+            }));
 
         browser.LoadingStateChanged += (_, args) => Dispatcher.BeginInvoke(() =>
         {

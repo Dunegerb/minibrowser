@@ -59,7 +59,6 @@ public sealed class CapsuleManager : IDisposable
             {
                 CachePath = capsule.CachePath ?? string.Empty,
                 PersistSessionCookies = !capsule.IsEphemeral,
-                PersistUserPreferences = !capsule.IsEphemeral,
                 AcceptLanguageList = "pt-BR,pt,en-US,en"
             };
 
@@ -75,7 +74,7 @@ public sealed class CapsuleManager : IDisposable
         {
             if (_contexts.TryGetValue(capsule.Id, out var context) && !context.IsDisposed)
             {
-                context.ClearHttpCache();
+                context.ClearHttpCache(null!);
             }
         }
     }
