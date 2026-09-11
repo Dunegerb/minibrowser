@@ -1,0 +1,16 @@
+[package]
+name = "citra-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "Citra"
+path = "src/main.rs"
+
+[dependencies]
+citra-capsules = { path = "../citra-capsules" }
+citra-core = { path = "../citra-core" }
+citra-renderer = { path = "../citra-renderer" }
+eframe.workspace = true

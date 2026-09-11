@@ -1,119 +1,78 @@
-name: Build MiniBrowser v0.6.1 Windows x64
+name: Build Citra 0.1 Native Windows x64
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
-  DOTNET_NOLOGO: "1"
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: "1"
 
 jobs:
-  build-windows-x64:
-    name: Windows x64 V0.6.1
+  build:
     runs-on: windows-latest
-    timeout-minutes: 30
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: Install .NET 8 SDK
-        uses: actions/setup-dotnet@v5
+      - name: Install Rust 1.98.1
+        uses: dtolnay/rust-toolchain@1.98.1
         with:
-          dotnet-version: 8.0.x
+          toolchain: 1.98.1
+          components: rustfmt, clippy
 
-      - name: Verify selected SDK
+      - name: Verify toolchain
         shell: pwsh
         run: |
-          dotnet --version
-          $major = (dotnet --version).Split('.')[0]
-          if ($major -ne '8') { throw "Expected .NET SDK 8.x." }
+          rustc --version
+          cargo --version
 
-      - name: Restore win-x64
-        shell: pwsh
-        run: |
-          dotnet restore .\src\MiniBrowser.App\MiniBrowser.App.csproj -r win-x64
+      - name: Format check
+        run: cargo fmt --all -- --check
 
       - name: Compile smoke test
+        run: cargo check --workspace --all-targets
+
+      - name: Unit tests
+        run: cargo test --workspace
+
+      - name: Release build
+        run: cargo build --release --workspace
+
+      - name: Package
         shell: pwsh
         run: |
-          dotnet build .\src\MiniBrowser.App\MiniBrowser.App.csproj `
-            -c Release -r win-x64 --no-restore -p:Platform=x64
+          $out = Join-Path $env:GITHUB_WORKSPACE "artifacts\Citra-0.1-Native-win-x64"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
 
-      - name: Publish portable self-contained build
-        shell: pwsh
-        run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6.1-portable-x64"
-          dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
-            -c Release -r win-x64 --self-contained true `
-            -o $output -p:Platform=x64 -p:PublishSingleFile=false `
-            -p:DebugType=None -p:DebugSymbols=false -p:PublishReadyToRun=false
+          Copy-Item ".\target\release\Citra.exe" $out
+          Copy-Item ".\target\release\citra-image-decoder.exe" $out
+          Copy-Item ".\README.md" $out
+          Copy-Item ".\docs\ARCHITECTURE.md" $out
+          Copy-Item ".\docs\MACHINE_PROTOCOL_V1.md" $out
 
-      - name: Publish thin build
-        shell: pwsh
-        run: |
-          $output = Join-Path $env:GITHUB_WORKSPACE "artifacts\MiniBrowser-v0.6.1-thin-x64"
-          dotnet publish .\src\MiniBrowser.App\MiniBrowser.App.csproj `
-            -c Release -r win-x64 --self-contained false `
-            -o $output -p:Platform=x64 -p:PublishSingleFile=false `
-            -p:DebugType=None -p:DebugSymbols=false -p:PublishReadyToRun=false
-
-      - name: Prune debug files and unused locales
-        shell: pwsh
-        run: |
-          Get-ChildItem "$env:GITHUB_WORKSPACE\artifacts" -Directory | ForEach-Object {
-            $root = $_.FullName
-            Get-ChildItem $root -Recurse -File -Include *.pdb,*.xml | Remove-Item -Force -ErrorAction SilentlyContinue
-
-            $locales = Join-Path $root "locales"
-            if (Test-Path $locales) {
-              Get-ChildItem $locales -File | Where-Object {
-                $_.Name -notin @('pt-BR.pak','en-US.pak')
-              } | Remove-Item -Force -ErrorAction SilentlyContinue
-            }
+          $files = Get-ChildItem $out -File
+          $lines = foreach ($file in $files) {
+            $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
           }
+          $lines | Set-Content -Encoding ascii (Join-Path $out "SHA256SUMS.txt")
 
-      - name: Validate and report package sizes
-        shell: pwsh
-        run: |
-          Get-ChildItem "$env:GITHUB_WORKSPACE\artifacts" -Directory | ForEach-Object {
-            $root = $_.FullName
-            $exe = Join-Path $root "MiniBrowser.exe"
-            $cef = Join-Path $root "libcef.dll"
-            if (-not (Test-Path $exe)) { throw "MiniBrowser.exe missing in $root" }
-            if (-not (Test-Path $cef)) { throw "libcef.dll missing in $root" }
+          Write-Host "Package contents:"
+          Get-ChildItem $out | Select-Object Name, Length
+          $total = (Get-ChildItem $out -File | Measure-Object Length -Sum).Sum
+          Write-Host ("Total package size: {0:N2} MB" -f ($total / 1MB))
 
-            $bytes = (Get-ChildItem $root -Recurse -File | Measure-Object Length -Sum).Sum
-            Write-Host "=== $($_.Name): $([math]::Round($bytes / 1MB, 2)) MB ==="
-            Get-ChildItem $root -Recurse -File |
-              Sort-Object Length -Descending |
-              Select-Object -First 15 Name,@{N='MB';E={[math]::Round($_.Length/1MB,2)}} |
-              Format-Table -AutoSize
-
-            $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash  MiniBrowser.exe" | Set-Content -Encoding ascii (Join-Path $root "SHA256SUMS.txt")
-          }
-
-      - name: Upload portable browser
+      - name: Upload Citra artifact
         uses: actions/upload-artifact@v7
         with:
-          name: MiniBrowser-v0.6.1-portable-x64
-          path: artifacts/MiniBrowser-v0.6.1-portable-x64/
-          if-no-files-found: error
+          name: Citra-0.1-Native-win-x64
+          path: artifacts/Citra-0.1-Native-win-x64/
           retention-days: 7
-          compression-level: 9
-
-      - name: Upload thin browser
-        uses: actions/upload-artifact@v7
-        with:
-          name: MiniBrowser-v0.6.1-thin-x64
-          path: artifacts/MiniBrowser-v0.6.1-thin-x64/
           if-no-files-found: error
-          retention-days: 7
-          compression-level: 9

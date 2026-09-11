@@ -1,16 +1,24 @@
-# Build V0.6.1 with GitHub Actions
+# Build Citra 0.1 Native with GitHub Actions
 
-Push the repository to `main` or run the workflow manually from GitHub → Actions → **Build MiniBrowser v0.6.1 Windows x64**.
+Commit this directory to the repository root and push to `main`.
 
-Artifacts:
+Then open:
 
 ```text
-MiniBrowser-v0.6.1-portable-x64
-MiniBrowser-v0.6.1-thin-x64
+GitHub → Actions → Build Citra 0.1 Native Windows x64
 ```
 
-Use Portable first. It includes the .NET runtime and should run on Windows x64 without installing the SDK.
+After a green build, download the artifact:
 
-The Thin artifact omits the .NET runtime and requires the .NET 8 Desktop Runtime.
+```text
+Citra-0.1-Native-win-x64
+```
 
-The Chromium/CEF files remain the largest part of both packages. This is expected; V0.6.1 changes the trust/storage architecture, not the engine payload size.
+Keep these two executables together:
+
+```text
+Citra.exe
+citra-image-decoder.exe
+```
+
+`Citra.exe` intentionally has no .NET runtime and no Chromium bundle.

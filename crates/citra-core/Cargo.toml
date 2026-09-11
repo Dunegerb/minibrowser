@@ -1,0 +1,16 @@
+[package]
+name = "citra-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+base64.workspace = true
+citra-capsules = { path = "../citra-capsules" }
+citra-machine = { path = "../citra-machine" }
+citra-network = { path = "../citra-network" }
+citra-protocol = { path = "../citra-protocol" }
+citra-renderer = { path = "../citra-renderer" }
+sha2.workspace = true
+url.workspace = true

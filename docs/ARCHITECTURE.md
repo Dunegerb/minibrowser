@@ -1,47 +1,48 @@
-# Architecture — V0.6
+# Citra 0.1 Native architecture
 
 ```text
-                         TRUSTED UI
-                   tabs / omnibox / capsule
-                              |
-                              v
-                 +--------------------------+
-                 |      Browser Core        |
-                 |                          |
-                 |  CapsuleManager          |
-                 |  CapabilityBroker        |
-                 |  NetworkPolicyBroker     |
-                 |  MachineBridge           |
-                 +------------+-------------+
-                              |
-                 policy / isolated context
-                              |
-                              v
-                 +--------------------------+
-                 | CEF / Chromium           |
-                 | untrusted web renderer   |
-                 +------------+-------------+
-                              |
-                              v
-                           INTERNET
+Trusted Citra UI
+      |
+      v
+CitraCore -------------------- MiniMachineBridge
+   |                                  |
+   | visual preview + context         | Named Pipe
+   |                                  v
+   |                           MiniMachineCore
+   |
+   +--> NetworkBroker --> HTTP/HTTPS
+   |
+   +--> Citra HTML Renderer
+   |       (NO networking)
+   |
+   +--> image bytes
+          |
+          v
+   citra-image-decoder.exe
+          |
+          | bounded RGBA display + preview
+          v
+      Visual Gate
+          |
+      ALLOW only
+          |
+          v
+         UI
 ```
 
-## Current trust boundary
+## Security properties already structural in 0.1
 
-- Web content is not trusted.
-- Website JavaScript never receives direct access to `MachineBridge`, capsule management or Browser Core services.
-- Tabs in different capsules receive different CEF `RequestContext` instances.
-- Anonymous capsule storage is in-memory; Personal capsule website state is stored in an isolated path.
-- `NetworkPolicyBroker` is called before resource loads and can block filesystem/download/unknown-scheme access.
-- Network Audit records capsule + policy outcome locally.
+1. The HTML renderer has no network client dependency.
+2. The UI does not directly fetch web resources.
+3. `file:`, custom schemes and URL-embedded credentials are denied by NetworkPolicyBroker.
+4. Page and image response sizes are capped.
+5. Redirects are manually followed and policy-checked at every hop.
+6. Browser state is RAM-only in 0.1; there is no history DB, cookie store or HTTP disk cache.
+7. Image decoders are outside `Citra.exe`. A decoder panic kills the decoder worker, not the main browser.
+8. Image dimensions and decoder allocation are bounded.
+9. The UI never receives image pixels before MiniMachine returns ALLOW, except when the user explicitly enables DEV ALLOW.
+10. MiniMachine web content never receives access to the named pipe: only CitraCore owns the bridge.
 
-## Important limitation
+## Important non-guarantees
 
-CEF still owns sockets and DNS in V0.6. Therefore the current `NetworkPolicyBroker` is an enforcement choke point, not yet the final physically separated Network Broker.
-
-## Browser / Machine invariant
-
-Browser Core reports **what happened**, where, when and under which capsule/policy.
-MiniMachine decides **what it means** and what action to take.
-
-The Machine protocol remains independent of the renderer implementation.
+Crate separation is architecture, not an OS sandbox. `citra-network` currently uses Reqwest/Rustls and the OS networking stack. The image decoder is a separate process but does not yet have a Windows AppContainer/job-token sandbox. DNS is still conventional. These are explicit future boundaries, not hidden claims.

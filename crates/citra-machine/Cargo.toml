@@ -1,0 +1,10 @@
+[package]
+name = "citra-machine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+citra-protocol = { path = "../citra-protocol" }
+serde_json.workspace = true

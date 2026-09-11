@@ -1,36 +1,25 @@
-# Engineering roadmap after the V0.6 architecture pivot
+# Citra Native roadmap
 
-## V0.6 — Zero Browser foundation (this archive)
+## 0.1 — chassis
 
-- identity capsules;
-- Anonymous RAM-only RequestContext;
-- Personal isolated persistent RequestContext;
-- CapabilityBroker;
-- NetworkPolicyBroker request choke point;
-- capsule-aware audit/history/MachineProtocol v2;
-- Trusted UI capsule selector.
+Native UI, CitraCore, isolated network module, HTML tokenizer/render model, anonymous RAM-only capsules, separate image decoder, MiniMachine Visual Gate.
 
-## V0.7 — Permission broker enforcement
+## 0.2 — document engine
 
-Wire camera, microphone, geolocation, notifications, clipboard and downloads to CapabilityBroker with explicit trusted UI prompts and per-capsule grants.
+Citra CSS subset, forms without JavaScript, cookies/storage broker, persistent capsule vault design, better tables and accessibility tree.
 
-## V0.8 — Visual quarantine
+## 0.3 — scripting laboratory
 
-First Paint Shield, response-byte capture, shared memory, image hash/perceptual-hash decision cache, CSS/srcset/data/blob/SVG coverage and async MiniMachine decisions.
+Introduce a JavaScript runtime behind explicit capabilities. It receives DOM APIs and NetworkBroker handles, never ambient sockets/filesystem.
 
-## V0.9 — Dynamic behavior graph
+## 0.4 — process isolation
 
-DOM mutation sensor, visibility/dwell time, semantic click/scroll/focus events, causal IDs, form submission events and replay improvements.
+Renderer and image/media workers in restricted Windows processes/AppContainers, job objects, mitigations and IPC-only authority.
 
-## V0.10 — External Network Broker prototype
+## 0.5 — modern layout
 
-Move destination policy and transport toward a separate process. CEF must no longer be treated as the final network authority. Preserve the `NetworkPolicyBroker` contract while replacing its transport implementation.
+Expand CSS/layout, font shaping and compositing. Evaluate which Servo components are worth importing as libraries rather than importing a browser.
 
-## Later security milestones
+## 0.6+ — web application compatibility
 
-- renderer/browser out-of-process hardening and disposable execution environments;
-- identity vault and cryptographic capsule destruction;
-- fingerprint uniformity profiles;
-- anonymous network overlay / DNS privacy experimentation;
-- reproducible builds, multi-party signing and transparency;
-- external packet-capture verification and red-team/fuzzing.
+Incrementally add media, WebSocket, WebAssembly and advanced APIs through brokers and capability grants.

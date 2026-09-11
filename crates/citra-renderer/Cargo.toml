@@ -1,0 +1,10 @@
+[package]
+name = "citra-renderer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+html5ever.workspace = true
+url.workspace = true

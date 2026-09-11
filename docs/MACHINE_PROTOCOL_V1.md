@@ -1,34 +1,63 @@
-# MachineProtocol v1
+# Citra ↔ MiniMachine protocol v1
 
-Browser event envelope:
+Transport on Windows:
+
+```text
+\\.\pipe\MiniMachineBrain
+```
+
+One JSON event followed by `\n`, then one JSON response followed by `\n`.
+
+Visual event:
 
 ```json
 {
-  "event": "network.resource.request",
+  "event": "visual.resource",
   "version": 1,
-  "sessionId": "...",
-  "windowId": "...",
-  "tabId": 1,
-  "frameId": 0,
-  "timestampUtc": "...",
-  "monotonicUs": 123456,
-  "causalId": "...",
-  "payload": {}
+  "session_id": "...",
+  "capsule_id": "anon-...",
+  "tab_id": 1,
+  "navigation_id": 4,
+  "resource_id": "img-2",
+  "timestamp_utc_ms": 0,
+  "page": {
+    "url_hash": "...",
+    "domain": "example.com"
+  },
+  "resource": {
+    "url_hash": "...",
+    "mime": "image/jpeg",
+    "byte_len": 10000,
+    "width": 800,
+    "height": 600,
+    "sha256": "...",
+    "preview_width": 128,
+    "preview_height": 96,
+    "preview_rgba_base64": "..."
+  }
 }
 ```
 
-Decision:
+Response:
 
 ```json
 {
-  "resourceId": "887",
-  "decision": "Block",
-  "risk": 0.91,
-  "confidence": 0.87,
-  "cacheForSeconds": 86400
+  "resource_id": "img-2",
+  "decision": "ALLOW",
+  "risk": 0.1,
+  "confidence": 0.9,
+  "cache_for_seconds": 3600,
+  "reason": "..."
 }
 ```
 
-Transport target: Windows named pipe `\\.\pipe\MiniMachineBrain`.
+Decisions understood by Citra 0.1:
 
-V0.1 ships the transport scaffold but uses `NullMachineBridge` so that the browser is usable before MiniMachineCore exists.
+- `ALLOW`: pixels may cross the visual gate into UI.
+- `BLOCK`: neutral placeholder.
+- `BLUR`: quarantined placeholder in 0.1; actual blur lands later.
+- `REPLACE`: quarantined placeholder in 0.1.
+- `DEFER`: quarantined placeholder.
+- `SCAN_MORE`: quarantined placeholder.
+
+Citra uses an in-memory decision cache keyed by SHA-256. No visual decision is persisted in 0.1.

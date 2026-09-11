@@ -1,10 +1,5 @@
-bin/
-obj/
-.vs/
-*.user
-*.suo
+/target/
+*.pdb
+.DS_Store
+Thumbs.db
 *.log
-artifacts/
-
-# GitHub/local publish outputs
-artifacts/

@@ -1,0 +1,13 @@
+[package]
+name = "citra-image-decoder"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "citra-image-decoder"
+path = "src/main.rs"
+
+[dependencies]
+image.workspace = true
